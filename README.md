@@ -23,7 +23,7 @@ The goal of this project is to read, modify, and extract statistics from a local
 Developed during my first year of university. It uses basic file I/O and manual data parsing techniques.
 
 ### `v2-upgrade/`
-
+An upgrade from the original code built from scratch.
 ---
 
 ## 📝 Requirements
