@@ -1,3 +1,5 @@
+This readme was created for the first year project.
+
 Nombre proyecto:
 Grupo #2
 Integrantes:
