@@ -1,0 +1,12 @@
+Fecha: 2020/07/07 11:53:17
+Item                  Precio     Cant  Valor
+
+------------------------------
+Arroz                $15000     x1    $15000
+Sunte durazno        $6800      x10   $68000
+Salchichas rancheras $16600     x2    $33200
+----------------------------------------
+Items: 13
+Total: $116200.0
+Gracias por su compra!
+----------------------------------------

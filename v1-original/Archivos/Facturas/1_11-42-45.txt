@@ -1,0 +1,10 @@
+Fecha: 2020/07/07 11:42:45
+Item		 Precio Cantidad Valor
+------------------------------
+Arroz $15000 x3 $45000
+Cereal Zucaritas $19300 x4 $77200
+Sunte durazno $6800 x1 $6800
+------------------------------
+Items: 8
+Total: $129000.0
+Gracias por su compra!------------------------------

@@ -1,0 +1,14 @@
+Fecha: 2020/07/07 11:48:39
+Item                 Precio    Cantidad Valor
+
+------------------------------
+Arroz                $15000     x3    $45000
+Cereal Zucaritas     $19300     x1    $19300
+Sunte durazno        $6800      x3    $20400
+Galletas Festival Chocolate $8000      x10   $80000
+Salchichas rancheras $16600     x1    $16600
+Mango                $5000      x3    $15000
+------------------------------
+Items: 21
+Total: $196300.0
+Gracias por su compra!------------------------------

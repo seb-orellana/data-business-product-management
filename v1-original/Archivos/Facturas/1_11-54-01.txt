@@ -1,0 +1,11 @@
+Fecha: 2020/07/07 11:54:01
+Item                  Precio     Cant  Valor
+
+------------------------------
+Galletas Festival Ch $8000      x10   $80000
+Sunte durazno        $6800      x5    $34000
+----------------------------------------
+Items: 15
+Total: $114000.0
+Gracias por su compra!
+----------------------------------------
