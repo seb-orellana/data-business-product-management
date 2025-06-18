@@ -23,11 +23,6 @@ The goal of this project is to read, modify, and extract statistics from a local
 Developed during my first year of university. It uses basic file I/O and manual data parsing techniques.
 
 ### `v2-upgrade/`
-A slighly better version of the original code.
-The code now uses libraries to enhance use, allowing for the creation of a GUI and a better management of the data.
-Furthermmore, the code has been separated in multiple .py to avoid the clutter of lines in a single file.
-
-There are more possible upgrades, however, there are no plans to applying them soon.
 
 ---
 
