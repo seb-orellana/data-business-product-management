@@ -24,6 +24,10 @@ Developed during my first year of university. It uses basic file I/O and manual 
 
 ### `v2-upgrade/`
 An upgrade from the original code built from scratch.
+
+Instead of .csv, it uses SQLite for database management.
+For users, passwords pass through bcrypt. Given the nature of the project, the use of argon2id or scrypt isnt deemed necessary.
+
 ---
 
 ## 📝 Requirements
