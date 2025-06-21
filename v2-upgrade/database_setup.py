@@ -1,0 +1,58 @@
+import sqlite3
+
+def initialize_db(db_path="v2-upgrade/store.db"):
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+
+        # Create users
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                hashed_password TEXT NOT NULL,
+                role TEXT CHECK(role IN ('admin', 'employee')) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        ''')
+
+        # Create products
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS products (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                price REAL NOT NULL CHECK(price >= 0),
+                stock INTEGER DEFAULT 0 CHECK(stock >= 0),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        ''')
+
+        # Create sales
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS sales (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                product_id INTEGER NOT NULL,
+                quantity INTEGER NOT NULL CHECK(quantity > 0),
+                total_price REAL NOT NULL,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(user_id) REFERENCES users(id),
+                FOREIGN KEY(product_id) REFERENCES products(id)
+            );
+        ''')
+
+        # Create activity_log
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS activity_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                action TEXT NOT NULL,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            );
+        ''')
+
+        conn.commit()
+        print("Database initialized successfully.")
+
+if __name__ == "__main__":
+    initialize_db()
