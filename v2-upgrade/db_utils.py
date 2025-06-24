@@ -146,3 +146,25 @@ class db_management:
             conn.commit()
 
             print(f"✅ Stock for product '{name}' adjusted by {delta}. New stock: {new_stock}")
+
+    def update_price(self, user_id, product_id, new_price):
+        action_type = "update_price" 
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT name, stock FROM products WHERE id = ?", (product_id,))
+            result = cursor.fetchone()
+
+            if result is None:
+                print("❌ Product not found.")
+                return
+
+            cursor.execute("UPDATE products SET price = ? WHERE id = ?", (new_price, product_id))
+
+            msg = f"Updated price for product ({product_id}): '{result[0]}' updated to ${new_price}."
+            cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
+                        (user_id, action_type, msg))
+
+            conn.commit()
+
+            print(f"✅ Updated price for product '{result[0]}' to ${new_price}.")
