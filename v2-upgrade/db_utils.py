@@ -70,3 +70,42 @@ class db_management:
             conn.commit()
 
             print(f"Sold complete. Total price: {total_price:.2f}")
+
+    def update_stock(self, product_id, new_stock):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT name FROM products WHERE id = ?", (product_id,))
+            result = cursor.fetchone()
+
+            if result is None:
+                print("❌ Product not found.")
+                return
+
+            cursor.execute("UPDATE products SET stock = ? WHERE id = ?", (new_stock, product_id))
+            conn.commit()
+
+            print(f"✅ Stock for product '{result[0]}' updated to {new_stock}.")
+
+    def adjust_stock(self, product_id, delta):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT name, stock FROM products WHERE id = ?", (product_id,))
+            result = cursor.fetchone()
+
+            if result is None:
+                print("❌ Product not found.")
+                return
+
+            name, current_stock = result
+            new_stock = current_stock + delta
+
+            if new_stock < 0:
+                print(f"❌ Cannot reduce below zero. Current stock: {current_stock}")
+                return
+
+            cursor.execute("UPDATE products SET stock = ? WHERE id = ?", (new_stock, product_id))
+            conn.commit()
+
+            print(f"✅ Stock for product '{name}' adjusted by {delta}. New stock: {new_stock}")
