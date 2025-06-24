@@ -5,24 +5,42 @@ class db_management:
     def __init__(self):
         self.db_path = "v2-upgrade/store.db"
 
-    def create_users(self, username, password, role):
+    def create_users(self, user_id, username, password, role):
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        
+        action_type = "create_users"
+
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
         
             cursor.execute("INSERT INTO users (username, hashed_password, role) VALUES (?, ?, ?)",
                         (username, hashed, role))
+            
+            id = cursor.lastrowid
+            
+            msg = f"Created user ({id}) with role {role}."
+
+            cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
+                        (user_id, action_type, msg))
+
             conn.commit()
         
             print("User created")
 
-    def add_product(self, name, price, stock):       
+    def add_product(self, user_id, name, price, stock):      
+        action_type = "add_product" 
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
 
             cursor.execute("INSERT INTO products (name, price, stock) VALUES (?, ?, ?)",
                         (name, price, stock))
+            
+            id = cursor.lastrowid
+
+            msg = f"Added product ({id}): {name} with price: {price} and stock: {stock}."
+
+            cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
+                        (user_id, action_type, msg))
+
             conn.commit()
 
             print("Product added")
@@ -31,10 +49,12 @@ class db_management:
         """
         items: list of dicts like [{"product_id": 1, "quantity": 2}, ...]
         """
+        action_type = "sell_products" 
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
 
             total_price = 0
+            total_quantity = 0
             sale_items_data = []
 
             for item in items:
@@ -54,6 +74,7 @@ class db_management:
                 new_stock = stock - item["quantity"]
                 cursor.execute("UPDATE products SET stock = ? WHERE id = ?", (new_stock, item["product_id"]))
 
+                total_quantity += item["quantity"]
                 total_price += price * item["quantity"]
                 sale_items_data.append((item["product_id"], item["quantity"], price))
 
@@ -67,11 +88,16 @@ class db_management:
                     (sale_id, product_id, quantity, price)
                 )   
 
+            msg = f"Selled ({sale_id}) {total_quantity} products for ${total_price}."
+            cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
+                        (user_id, action_type, msg))
+
             conn.commit()
 
             print(f"Sold complete. Total price: {total_price:.2f}")
 
-    def update_stock(self, product_id, new_stock):
+    def update_stock(self, user_id, product_id, new_stock):
+        action_type = "update_stock" 
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
 
@@ -83,11 +109,17 @@ class db_management:
                 return
 
             cursor.execute("UPDATE products SET stock = ? WHERE id = ?", (new_stock, product_id))
+
+            msg = f"Updated stock for product ({product_id}): '{result[0]}' updated to {new_stock}."
+            cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
+                        (user_id, action_type, msg))
+
             conn.commit()
 
             print(f"✅ Stock for product '{result[0]}' updated to {new_stock}.")
 
-    def adjust_stock(self, product_id, delta):
+    def adjust_stock(self, user_id, product_id, delta):
+        action_type = "adjust_stock" 
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
 
@@ -106,6 +138,11 @@ class db_management:
                 return
 
             cursor.execute("UPDATE products SET stock = ? WHERE id = ?", (new_stock, product_id))
+
+            msg = f"Adjusted stock for product ({product_id}): '{result[0]}' updated to {new_stock}."
+            cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
+                        (user_id, action_type, msg))
+
             conn.commit()
 
             print(f"✅ Stock for product '{name}' adjusted by {delta}. New stock: {new_stock}")
