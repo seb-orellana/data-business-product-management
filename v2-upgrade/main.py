@@ -19,5 +19,8 @@ def main():
     db.adjust_stock(2, 1, 3)
     db.update_price(1, 3, 3000)
 
+    db.delete_user(1, 2)
+    db.remove_product(1,2)
+
 if __name__ == '__main__':
     main()

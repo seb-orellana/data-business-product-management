@@ -11,6 +11,7 @@ def initialize_db(db_path="v2-upgrade/store.db"):
                 username TEXT UNIQUE NOT NULL,
                 hashed_password TEXT NOT NULL,
                 role TEXT CHECK(role IN ('admin', 'employee')) NOT NULL,
+                is_deleted BIT NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         ''')
@@ -22,6 +23,7 @@ def initialize_db(db_path="v2-upgrade/store.db"):
                 name TEXT NOT NULL,
                 price REAL NOT NULL CHECK(price >= 0),
                 stock INTEGER DEFAULT 0 CHECK(stock >= 0),
+                is_removed BIT NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         ''')

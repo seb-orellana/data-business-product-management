@@ -26,6 +26,23 @@ class db_management:
         
             print("User created")
 
+    def delete_user(self, user_id, user_target_id):
+        action_type = "delete_user"
+
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+        
+            cursor.execute("UPDATE users SET is_deleted = ? WHERE id = ?", (1, user_target_id))
+
+            msg = f"Deleted user ({user_target_id})."
+
+            cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
+                        (user_id, action_type, msg))
+
+            conn.commit()
+        
+            print("User deleted")
+
     def add_product(self, user_id, name, price, stock):      
         action_type = "add_product" 
         with sqlite3.connect(self.db_path) as conn:
@@ -44,6 +61,22 @@ class db_management:
             conn.commit()
 
             print("Product added")
+
+    def remove_product(self, user_id, product_id):      
+        action_type = "remove_product" 
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+
+            cursor.execute("UPDATE products SET is_removed = ? WHERE id = ?", (1, product_id))
+            
+            msg = f"Removed product ({product_id})."
+
+            cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
+                        (user_id, action_type, msg))
+
+            conn.commit()
+
+            print("Product removed")
 
     def sell_products(self, user_id, items):
         """
