@@ -3,7 +3,7 @@ from db_utils import db_management
 def main():
     db = db_management()
 
-    db.create_users(1, "userTest", "pwsdTest", "admin")
+    db.create_users(1, "userTest", "pwsdTest", "manager")
     db.create_users(2, "userTest2", "Testpwsd", "employee")
     db.add_product(1, "productTest", 1000, 10)
     db.add_product(1, "productTest2", 3000, 50)

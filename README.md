@@ -34,3 +34,6 @@ For users, passwords pass through bcrypt. Given the nature of the project, the u
 
 Python 3.11.9 is required. Previous versions might work for the "v1-original/" version.
 libraries: tkinter, pathlib, pandas, and tkcalendar.
+
+Copy .env.example to your .env
+cp .env.example .env

@@ -6,7 +6,7 @@ import sqlite3
 CURRENT_USER = {
     "id": 1,
     "username": "admin",
-    "role": "admin"  # or "employee"
+    "role": "admin"  #admin or manager or employee
 }
 
 class StoreGUI:
@@ -26,6 +26,8 @@ class StoreGUI:
         if CURRENT_USER['role'] == 'admin':
             tk.Button(self.main_frame, text="Create User", command=self.create_user_window).grid(row=1, column=0, sticky='ew')
             tk.Button(self.main_frame, text="Delete User", command=self.delete_user_window).grid(row=2, column=0, sticky='ew')
+
+        if CURRENT_USER['role'] == 'admin' or CURRENT_USER['role'] == 'manager':
             tk.Button(self.main_frame, text="Add Product", command=self.add_product_window).grid(row=3, column=0, sticky='ew')
             tk.Button(self.main_frame, text="Remove Product", command=self.remove_product_window).grid(row=4, column=0, sticky='ew')
             tk.Button(self.main_frame, text="Update Stock", command=self.update_stock_window).grid(row=5, column=0, sticky='ew')
@@ -95,7 +97,6 @@ class StoreGUI:
 
         tk.Button(win, text="Submit", command=submit).grid(row=len(fields), columnspan=2)
 
-    # Placeholder DB functions
     def create_user_db(self, data):
         messagebox.showinfo("Info", f"User {data['Username']} created (simulated)")
 

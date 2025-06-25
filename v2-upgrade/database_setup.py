@@ -1,5 +1,6 @@
 import sqlite3
-from config import DB_PATH
+import bcrypt
+from config import DB_PATH, admin_user, admin_pass
 
 def initialize_db(db_path=DB_PATH):
     with sqlite3.connect(db_path) as conn:
@@ -11,7 +12,7 @@ def initialize_db(db_path=DB_PATH):
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 hashed_password TEXT NOT NULL,
-                role TEXT CHECK(role IN ('admin', 'employee')) NOT NULL,
+                role TEXT CHECK(role IN ('admin', 'manager', 'employee')) NOT NULL,
                 is_deleted BIT NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -66,7 +67,32 @@ def initialize_db(db_path=DB_PATH):
         ''')
 
         conn.commit()
-        print("Database initialized successfully.")
+    init_admin_user()
+    print("Database initialized successfully.")
+
+
+def init_admin_user():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Check if any users exist
+    cursor.execute("SELECT COUNT(*) FROM users WHERE role='admin'")
+    count = cursor.fetchone()[0]
+
+    if count == 0:
+        username = admin_user
+        password = admin_pass 
+        role = "admin"
+        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+        cursor.execute("INSERT INTO users (username, hashed_password, role) VALUES (?, ?, ?)",
+                       (username, hashed, role))
+        conn.commit()
+        print("✅ Default admin user created.")
+    else:
+        print("✅ User as admin already exist, no admin created.")
+
+    conn.close()
 
 if __name__ == "__main__":
     initialize_db()
