@@ -40,7 +40,25 @@ class StoreGUI:
         tk.Button(self.main_frame, text="Adjust Stock", command=self.adjust_stock_window).grid(row=8, column=0, sticky='ew')
 
     def create_user_window(self):
-        self.simple_form_window("Create User", ["Username", "Password", "Role"], self.create_user_db)
+        db = db_management()
+
+        win = tk.Toplevel(self.root)
+        win.title("Create User")
+        fields = ["Username", "Password", "Role"]
+        entries = {}
+        for i, field in enumerate(fields):
+            tk.Label(win, text=field).grid(row=i, column=0)
+            entry = tk.Entry(win)
+            entry.grid(row=i, column=1)
+            entries[field] = entry
+
+        def submit():
+            data = {field: entries[field].get() for field in fields}
+            db.create_users(CURRENT_USER["id"], data["Username"], data["Password"], data["Role"])
+            messagebox.showinfo("Info", f"User {data['Username']} created")
+            win.destroy()
+
+        tk.Button(win, text="Submit", command=submit).grid(row=len(fields), columnspan=2)
 
     def delete_user_window(self):
         win = tk.Toplevel(self.root)
@@ -87,7 +105,7 @@ class StoreGUI:
                 messagebox.showerror("Error", f"An error occurred: {e}")
 
         tk.Button(win, text="Delete Selected User", command=confirm_deletion).pack(pady=10)
-        load_users()  # Initial load
+        load_users()
 
     def add_product_window(self):
         self.simple_form_window("Add Product", ["Name", "Price", "Stock"], self.add_product_db)
@@ -139,9 +157,6 @@ class StoreGUI:
             win.destroy()
 
         tk.Button(win, text="Submit", command=submit).grid(row=len(fields), columnspan=2)
-
-    def create_user_db(self, data):
-        messagebox.showinfo("Info", f"User {data['Username']} created (simulated)")
 
     def add_product_db(self, data):
         messagebox.showinfo("Info", f"Product {data['Name']} added (simulated)")
