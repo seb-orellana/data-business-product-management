@@ -33,10 +33,14 @@ class db_management:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
         
-            cursor.execute("UPDATE users SET is_deleted = ? WHERE id = ?", (1, user_target_id))
+            cursor.execute("SELECT username FROM users WHERE id = ?", (user_target_id,))
+            result = cursor.fetchone()
+            archived_username = f"{result[0]}_del_"
 
-            msg = f"Deleted user ({user_target_id})."
+            cursor.execute("UPDATE users SET username = ?, is_deleted = ? WHERE id = ?",
+                            (archived_username, 1, user_target_id))
 
+            msg = f"Deleted user: {result[0]}."
             cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
                         (user_id, action_type, msg))
 
