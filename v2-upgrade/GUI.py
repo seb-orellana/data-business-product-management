@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from config import DB_PATH
 import sqlite3
+from db_utils import db_management
 
 CURRENT_USER = {
     "id": 1,
@@ -12,10 +13,11 @@ CURRENT_USER = {
 class StoreGUI:
     def __init__(self, root):
         self.root = root
+        self.root.geometry("300x400")
         self.root.title("Business Management")
 
         self.main_frame = tk.Frame(root)
-        self.main_frame.pack(padx=10, pady=10)
+        self.main_frame.pack(padx=15, pady=15)
 
         self.build_interface()
 
@@ -41,10 +43,51 @@ class StoreGUI:
         self.simple_form_window("Create User", ["Username", "Password", "Role"], self.create_user_db)
 
     def delete_user_window(self):
-        #show non deleted users, excluding itself
-        #select user
-        #confirm
-        pass
+        win = tk.Toplevel(self.root)
+        win.title("Delete User")
+
+        tk.Label(win, text="Select a user to delete:").pack(pady=5)
+
+        listbox = tk.Listbox(win, width=40, height=10)
+        listbox.pack(padx=10, pady=5)
+
+        user_id_map = {}
+        def load_users():
+            listbox.delete(0, tk.END)
+            user_id_map.clear()
+
+            with sqlite3.connect(DB_PATH) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT id, username, role FROM users WHERE id <> ? AND is_deleted = 0", (1,))
+                users = cursor.fetchall()
+
+            for i, (uid, uname, role) in enumerate(users):
+                listbox.insert(tk.END, f"{uname} ({role})")
+                user_id_map[i] = (uid, uname)
+
+        def confirm_deletion():
+            db = db_management()
+            selection = listbox.curselection()
+            if not selection:
+                messagebox.showwarning("Warning", "Please select a user to delete.")
+                return
+
+            idx = selection[0]
+            user_id, username = user_id_map[idx]
+            
+            confirm = messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete this user?")
+            if not confirm:
+                return
+
+            try:
+                db.delete_user(CURRENT_USER["id"], user_id)
+                messagebox.showinfo("Deleted", f"User {username} deleted successfully.")
+                load_users()  # refresh listbox in-place
+            except Exception as e:
+                messagebox.showerror("Error", f"An error occurred: {e}")
+
+        tk.Button(win, text="Delete Selected User", command=confirm_deletion).pack(pady=10)
+        load_users()  # Initial load
 
     def add_product_window(self):
         self.simple_form_window("Add Product", ["Name", "Price", "Stock"], self.add_product_db)
@@ -99,9 +142,6 @@ class StoreGUI:
 
     def create_user_db(self, data):
         messagebox.showinfo("Info", f"User {data['Username']} created (simulated)")
-
-    def delete_user_db(self, data):
-        messagebox.showinfo("Info", f"User {data['Username']} deleted (simulated)")
 
     def add_product_db(self, data):
         messagebox.showinfo("Info", f"Product {data['Name']} added (simulated)")
