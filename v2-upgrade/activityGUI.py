@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import sqlite3
-
-DB_PATH = "v2-upgrade/store.db"
+from config import DB_PATH
 
 class ActivityLogViewer:
     def __init__(self, root):

@@ -1,9 +1,10 @@
 import sqlite3
 import bcrypt
+from config import DB_PATH
 
 class db_management:
     def __init__(self):
-        self.db_path = "v2-upgrade/store.db"
+        self.db_path = DB_PATH
 
     def create_users(self, user_id, username, password, role):
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())

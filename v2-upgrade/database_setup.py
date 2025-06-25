@@ -1,6 +1,7 @@
 import sqlite3
+from config import DB_PATH
 
-def initialize_db(db_path="v2-upgrade/store.db"):
+def initialize_db(db_path=DB_PATH):
     with sqlite3.connect(db_path) as conn:
         cursor = conn.cursor()
 

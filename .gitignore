@@ -193,5 +193,4 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 v2-upgrade/db_debug.py
-v2-upgrade/store.db
-.db
+v2-upgrade/Database
