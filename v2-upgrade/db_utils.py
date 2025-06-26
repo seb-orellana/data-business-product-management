@@ -18,7 +18,7 @@ class db_management:
             
             id = cursor.lastrowid
             
-            msg = f"Created user ({id}) with role {role}."
+            msg = f"Created user {username} with role {role}."
 
             cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
                         (user_id, action_type, msg))
@@ -35,7 +35,7 @@ class db_management:
         
             cursor.execute("SELECT username FROM users WHERE id = ?", (user_target_id,))
             result = cursor.fetchone()
-            archived_username = f"{result[0]}_del_"
+            archived_username = f"{result[0]}_del_{user_target_id}"
 
             cursor.execute("UPDATE users SET username = ?, is_deleted = ? WHERE id = ?",
                             (archived_username, 1, user_target_id))
