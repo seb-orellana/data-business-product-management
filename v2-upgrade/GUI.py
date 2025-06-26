@@ -130,7 +130,41 @@ class StoreGUI:
         load_users()
 
     def add_product_window(self):
-        self.simple_form_window("Add Product", ["Name", "Price", "Stock"], self.add_product_db)
+        db = db_management()
+        win = tk.Toplevel(self.root)
+        win.title("Add Product")
+        fields = ["Name", "Price", "Stock"]
+        entries = {}
+        for i, field in enumerate(fields):
+            tk.Label(win, text=field).grid(row=i, column=0)
+            entry = tk.Entry(win)
+            entry.grid(row=i, column=1)
+            entries[field] = entry
+
+        def submit():
+            try:
+                data = {field: entries[field].get().strip() for field in fields}
+
+                # Validation for price and stock
+                try:
+                    price = float(data["Price"])
+                    stock = int(data["Stock"])
+                    if price <= 0 or stock < 0:
+                        raise ValueError
+                except ValueError:
+                    messagebox.showerror("Input Error", "Price must be a positive number and Stock must be a non-negative integer.")
+                    return
+                db.add_product(CURRENT_USER["id"], data["Name"], price, stock)
+                messagebox.showinfo("Info", f"Product '{data['Name']}' added successfully.")
+                win.destroy()
+
+            except sqlite3.IntegrityError as e:
+                messagebox.showerror("Database Error", f"Integrity error: {e}")
+
+            except Exception as e:
+                messagebox.showerror("Error", f"An unexpected error occurred: {e}")
+
+        tk.Button(win, text="Submit", command=submit).grid(row=len(fields), columnspan=2)
 
     def remove_product_window(self):
         win = tk.Toplevel(self.root)
@@ -159,19 +193,19 @@ class StoreGUI:
             db = db_management()
             selection = listbox.curselection()
             if not selection:
-                messagebox.showwarning("Warning", "Please select a product to delete.")
+                messagebox.showwarning("Warning", "Please select a product to remove.")
                 return
 
             idx = selection[0]
             product_id, name = product_id_map[idx]
             
-            confirm = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete the product: {name}?")
+            confirm = messagebox.askyesno("Confirm Remove", f"Are you sure you want to remove the product: {name}?")
             if not confirm:
                 return
 
             try:
                 db.remove_product(CURRENT_USER["id"], product_id)
-                messagebox.showinfo("Deleted", f"Product {name} deleted successfully.")
+                messagebox.showinfo("Removed", f"Product {name} removed successfully.")
                 load_products()  # refresh listbox in-place
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred: {e}")
@@ -204,28 +238,8 @@ class StoreGUI:
         #confirm
         pass
 
-    def simple_form_window(self, title, fields, callback):
-        win = tk.Toplevel(self.root)
-        win.title(title)
-        entries = {}
-        for i, field in enumerate(fields):
-            tk.Label(win, text=field).grid(row=i, column=0)
-            entry = tk.Entry(win)
-            entry.grid(row=i, column=1)
-            entries[field] = entry
-
-        def submit():
-            data = {field: entries[field].get() for field in fields}
-            callback(data)
-            win.destroy()
-
-        tk.Button(win, text="Submit", command=submit).grid(row=len(fields), columnspan=2)
-
     def add_product_db(self, data):
         messagebox.showinfo("Info", f"Product {data['Name']} added (simulated)")
-
-    def remove_product_db(self, data):
-        messagebox.showinfo("Info", f"Product {data['Product ID']} removed (simulated)")
 
     def sell_product_db(self, data):
         messagebox.showinfo("Info", f"Sold {data['Quantity']} of product {data['Product ID']} (simulated)")
