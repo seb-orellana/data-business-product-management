@@ -65,9 +65,20 @@ class StoreGUI:
 
         def submit():
             data = {field: entries[field].get() for field in fields}
-            db.create_users(CURRENT_USER["id"], data["Username"], data["Password"], role.get())
-            messagebox.showinfo("Info", f"User {data['Username']} created")
-            win.destroy()
+
+            try:
+                db.create_users(CURRENT_USER["id"], data["Username"], data["Password"], role.get())
+                messagebox.showinfo("Info", f"User {data['Username']} created")
+                win.destroy()
+
+            except sqlite3.IntegrityError as e:
+                if "UNIQUE constraint failed: users.username" in str(e):
+                    messagebox.showerror("Error", f"The username '{data['Username']}' is already taken.")
+                else:
+                    messagebox.showerror("Database Error", f"Integrity error: {e}")
+
+            except Exception as e:
+                messagebox.showerror("Error", f"An unexpected error occurred: {e}")
 
         tk.Button(win, text="Submit", command=submit).grid(row=3, columnspan=2)
 
@@ -122,10 +133,51 @@ class StoreGUI:
         self.simple_form_window("Add Product", ["Name", "Price", "Stock"], self.add_product_db)
 
     def remove_product_window(self):
-        #show non removed products
-        #select product
-        #confirm
-        pass
+        win = tk.Toplevel(self.root)
+        win.title("Remove product")
+
+        tk.Label(win, text="Select a product to remove:").pack(pady=5)
+
+        listbox = tk.Listbox(win, width=40, height=10)
+        listbox.pack(padx=10, pady=5)
+
+        product_id_map = {}
+        def load_products():
+            listbox.delete(0, tk.END)
+            product_id_map.clear()
+
+            with sqlite3.connect(DB_PATH) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT id, name, stock FROM products WHERE is_removed = 0")
+                products = cursor.fetchall()
+
+            for i, (pid, name, stock) in enumerate(products):
+                listbox.insert(tk.END, f"{pid}: {name} ({stock})")
+                product_id_map[i] = (pid, name)
+
+        def confirm_deletion():
+            db = db_management()
+            selection = listbox.curselection()
+            if not selection:
+                messagebox.showwarning("Warning", "Please select a product to delete.")
+                return
+
+            idx = selection[0]
+            product_id, name = product_id_map[idx]
+            
+            confirm = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete the product: {name}?")
+            if not confirm:
+                return
+
+            try:
+                db.remove_product(CURRENT_USER["id"], product_id)
+                messagebox.showinfo("Deleted", f"Product {name} deleted successfully.")
+                load_products()  # refresh listbox in-place
+            except Exception as e:
+                messagebox.showerror("Error", f"An error occurred: {e}")
+
+        tk.Button(win, text="Delete Selected Product", command=confirm_deletion).pack(pady=10)
+        load_products()
 
     def sell_products_window(self):
         pass
