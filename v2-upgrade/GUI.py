@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from config import DB_PATH
 import sqlite3
 from db_utils import db_management
@@ -44,21 +44,32 @@ class StoreGUI:
 
         win = tk.Toplevel(self.root)
         win.title("Create User")
-        fields = ["Username", "Password", "Role"]
+        fields = ["Username", "Password"]
         entries = {}
         for i, field in enumerate(fields):
             tk.Label(win, text=field).grid(row=i, column=0)
             entry = tk.Entry(win)
             entry.grid(row=i, column=1)
             entries[field] = entry
+        tk.Label(win, text="Role").grid(row=2, column=0)
+        role = tk.StringVar()
+        combo = ttk.Combobox(
+            win,
+            textvariable=role,
+            values=["admin", "manager", "employee"],
+            state="readonly",
+            width=18
+        )
+        combo.current(2)  # Default to "employee"
+        combo.grid(row=2, column=1)
 
         def submit():
             data = {field: entries[field].get() for field in fields}
-            db.create_users(CURRENT_USER["id"], data["Username"], data["Password"], data["Role"])
+            db.create_users(CURRENT_USER["id"], data["Username"], data["Password"], role.get())
             messagebox.showinfo("Info", f"User {data['Username']} created")
             win.destroy()
 
-        tk.Button(win, text="Submit", command=submit).grid(row=len(fields), columnspan=2)
+        tk.Button(win, text="Submit", command=submit).grid(row=3, columnspan=2)
 
     def delete_user_window(self):
         win = tk.Toplevel(self.root)
@@ -93,7 +104,7 @@ class StoreGUI:
             idx = selection[0]
             user_id, username = user_id_map[idx]
             
-            confirm = messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete this user?")
+            confirm = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete this user: {username}?")
             if not confirm:
                 return
 
