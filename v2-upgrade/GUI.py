@@ -283,12 +283,57 @@ class StoreGUI:
         load_products()
 
     def adjust_stock_window(self):
-        #show non removed products
-        #select product
-        #choose add or remove
-        #type number
-        #confirm
-        pass
+        win = tk.Toplevel(self.root)
+        win.title("Adjust Stock")
+
+        tk.Label(win, text="Select a product to adjust:").pack(pady=5)
+
+        listbox = tk.Listbox(win, width=40, height=10)
+        listbox.pack(padx=10, pady=5)
+
+        product_id_map = {}
+
+        def load_products():
+            listbox.delete(0, tk.END)
+            product_id_map.clear()
+
+            with sqlite3.connect(DB_PATH) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT id, name, stock FROM products WHERE is_removed = 0")
+                products = cursor.fetchall()
+
+            for i, (pid, name, stock) in enumerate(products):
+                listbox.insert(tk.END, f"{pid}: {name} ({stock})")
+                product_id_map[i] = (pid, name, stock)
+
+        def adjust_stock(delta):
+            selection = listbox.curselection()
+            if not selection:
+                messagebox.showwarning("Warning", "Please select a product.")
+                return
+
+            idx = selection[0]
+            product_id, name, stock = product_id_map[idx]
+            new_stock = stock + delta
+
+            if new_stock < 0:
+                messagebox.showerror("Error", "Stock cannot be negative.")
+                return
+
+            try:
+                db = db_management()
+                db.adjust_stock(CURRENT_USER["id"], product_id, delta)
+                load_products()  # Refresh list
+            except Exception as e:
+                messagebox.showerror("Error", f"An error occurred: {e}")
+
+        button_frame = tk.Frame(win)
+        button_frame.pack(pady=10)
+
+        tk.Button(button_frame, text="Increase (+1)", width=15, command=lambda: adjust_stock(+1)).grid(row=0, column=0, padx=5)
+        tk.Button(button_frame, text="Decrease (-1)", width=15, command=lambda: adjust_stock(-1)).grid(row=0, column=1, padx=5)
+
+        load_products()
 
     def update_price_window(self):
         #show non removed products
