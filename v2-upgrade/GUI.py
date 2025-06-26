@@ -336,23 +336,72 @@ class StoreGUI:
         load_products()
 
     def update_price_window(self):
-        #show non removed products
-        #select product
-        #type number
-        #confirm
-        pass
+        win = tk.Toplevel(self.root)
+        win.title("Update price")
 
-    def add_product_db(self, data):
-        messagebox.showinfo("Info", f"Product {data['Name']} added (simulated)")
+        tk.Label(win, text="Select a product to update:").pack(pady=5)
+
+        listbox = tk.Listbox(win, width=40, height=10)
+        listbox.pack(padx=10, pady=5)
+
+        product_id_map = {}
+        def load_products():
+            listbox.delete(0, tk.END)
+            product_id_map.clear()
+
+            with sqlite3.connect(DB_PATH) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT id, name, price FROM products WHERE is_removed = 0")
+                products = cursor.fetchall()
+
+            for i, (pid, name, price) in enumerate(products):
+                listbox.insert(tk.END, f"{pid}: {name} (${price})")
+                product_id_map[i] = (pid, name, price)
+
+        def confirm_update(win, entry, product_id, name):
+            db = db_management()
+            new_price = entry.get().strip() 
+            try:
+                try:
+                    price = float(new_price)
+                    if price < 0:
+                        raise ValueError
+                except ValueError:
+                    messagebox.showerror("Input Error", "Price must be a positive number.")
+                    return
+
+                db.update_price(CURRENT_USER["id"], product_id, new_price)
+                messagebox.showinfo("Updated", f"Product {name} updated successfully.")
+                win.destroy()
+                load_products()  # refresh listbox in-place
+            except Exception as e:
+                messagebox.showerror("Error", f"An error occurred: {e}")
+
+        def initiate_update():
+            selection = listbox.curselection()
+            if not selection:
+                messagebox.showwarning("Warning", "Please select a product to update.")
+                return
+
+            idx = selection[0]
+            product_id, name, price = product_id_map[idx]
+
+            win2 = tk.Toplevel(win)
+            win2.title("Update Price Info")
+
+            tk.Label(win2, text=f"Product: {name}").grid(row=0, column=0, columnspan=2, pady=5)
+            tk.Label(win2, text=f"Current price: ${price}").grid(row=1, column=0, columnspan=2, pady=5)
+            tk.Label(win2, text="New price:").grid(row=2, column=0, pady=5)
+            entry = tk.Entry(win2)
+            entry.grid(row=2, column=1, pady=5)
+
+            tk.Button(win2, text="Update", command=lambda:confirm_update(win2, entry, product_id, name)).grid(row=3, columnspan=2, pady=5)
+
+        tk.Button(win, text="Update Selected Product", command=initiate_update).pack(pady=10)
+        load_products()
 
     def sell_product_db(self, data):
         messagebox.showinfo("Info", f"Sold {data['Quantity']} of product {data['Product ID']} (simulated)")
-
-    def adjust_stock_db(self, data):
-        messagebox.showinfo("Info", f"Stock for product {data['Product ID']} adjusted by {data['Change (+/-)']} (simulated)")
-
-    def update_price_db(self, data):
-        messagebox.showinfo("Info", f"Price for product {data['Product ID']} updated to {data['New Price']} (simulated)")
 
 if __name__ == "__main__":
     root = tk.Tk()
