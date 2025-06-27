@@ -21,6 +21,7 @@ def main():
 
     db.delete_user(1, 2)
     db.remove_product(1,2)
+    db.change_password(1, "userTest", "hello123")
 
 if __name__ == '__main__':
     main()

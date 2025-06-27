@@ -400,9 +400,6 @@ class StoreGUI:
         tk.Button(win, text="Update Selected Product", command=initiate_update).pack(pady=10)
         load_products()
 
-    def sell_product_db(self, data):
-        messagebox.showinfo("Info", f"Sold {data['Quantity']} of product {data['Product ID']} (simulated)")
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = StoreGUI(root)

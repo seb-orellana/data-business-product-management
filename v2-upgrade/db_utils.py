@@ -16,8 +16,6 @@ class db_management:
             cursor.execute("INSERT INTO users (username, hashed_password, role) VALUES (?, ?, ?)",
                         (username, hashed, role))
             
-            id = cursor.lastrowid
-            
             msg = f"Created user {username} with role {role}."
 
             cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
@@ -47,6 +45,23 @@ class db_management:
             conn.commit()
         
             print("User deleted")
+
+    def change_password(self, user_id, username, new_password):
+        action_type = "change_password"
+        hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+
+            cursor.execute("UPDATE users SET hashed_password = ? WHERE id = ?",
+                            (hashed, user_id))
+
+            msg = f"Password changed for {username}."
+            cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
+                        (user_id, action_type, msg))
+
+            conn.commit()
+        
+            print("Password changed")
 
     def add_product(self, user_id, name, price, stock):      
         action_type = "add_product" 
