@@ -3,6 +3,7 @@ from tkinter import messagebox, ttk
 from config import DB_PATH
 import sqlite3
 from db_utils import db_management
+from activityGUI import ActivityLogViewer
 
 CURRENT_USER = {
     "id": 1,
@@ -28,16 +29,17 @@ class StoreGUI:
         if CURRENT_USER['role'] == 'admin':
             tk.Button(self.main_frame, text="Create User", command=self.create_user_window).grid(row=1, column=0, sticky='ew')
             tk.Button(self.main_frame, text="Delete User", command=self.delete_user_window).grid(row=2, column=0, sticky='ew')
+            tk.Button(self.main_frame, text="Activity Log", command=self.open_activity_log_viewer).grid(row=3, column=0, sticky='ew')
 
         if CURRENT_USER['role'] == 'admin' or CURRENT_USER['role'] == 'manager':
-            tk.Button(self.main_frame, text="Add Product", command=self.add_product_window).grid(row=3, column=0, sticky='ew')
-            tk.Button(self.main_frame, text="Remove Product", command=self.remove_product_window).grid(row=4, column=0, sticky='ew')
-            tk.Button(self.main_frame, text="Update Stock", command=self.update_stock_window).grid(row=5, column=0, sticky='ew')
-            tk.Button(self.main_frame, text="Update Price", command=self.update_price_window).grid(row=6, column=0, sticky='ew')
+            tk.Button(self.main_frame, text="Add Product", command=self.add_product_window).grid(row=4, column=0, sticky='ew')
+            tk.Button(self.main_frame, text="Remove Product", command=self.remove_product_window).grid(row=5, column=0, sticky='ew')
+            tk.Button(self.main_frame, text="Update Stock", command=self.update_stock_window).grid(row=6, column=0, sticky='ew')
+            tk.Button(self.main_frame, text="Update Price", command=self.update_price_window).grid(row=7, column=0, sticky='ew')
 
         # Common features
-        tk.Button(self.main_frame, text="Sell Products", command=self.sell_products_window).grid(row=7, column=0, sticky='ew')
-        tk.Button(self.main_frame, text="Adjust Stock", command=self.adjust_stock_window).grid(row=8, column=0, sticky='ew')
+        tk.Button(self.main_frame, text="Sell Products", command=self.sell_products_window).grid(row=8, column=0, sticky='ew')
+        tk.Button(self.main_frame, text="Adjust Stock", command=self.adjust_stock_window).grid(row=9, column=0, sticky='ew')
 
     def create_user_window(self):
         db = db_management()
@@ -399,6 +401,11 @@ class StoreGUI:
 
         tk.Button(win, text="Update Selected Product", command=initiate_update).pack(pady=10)
         load_products()
+
+    def open_activity_log_viewer(self):
+        log_win = tk.Toplevel(self.root)
+        log_win.geometry("1200x500")
+        ActivityLogViewer(log_win)
 
 if __name__ == "__main__":
     root = tk.Tk()

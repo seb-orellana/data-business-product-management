@@ -94,10 +94,3 @@ class ActivityLogViewer:
 
         # Reverse sort next time
         self.tree.heading(col, command=lambda: self.sort_by(col, not reverse))
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = ActivityLogViewer(root)
-    root.geometry("1200x500")
-    root.mainloop()
