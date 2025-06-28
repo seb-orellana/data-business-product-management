@@ -36,6 +36,7 @@ class BusinessGUI:
         # Common features
         tk.Button(self.main_frame, text="Sell Products", command=self.sell_products_window).grid(row=8, column=0, sticky='ew')
         tk.Button(self.main_frame, text="Adjust Stock", command=self.adjust_stock_window).grid(row=9, column=0, sticky='ew')
+        tk.Button(self.main_frame, text="Change Password", command=self.change_pwsd_window).grid(row=10, column=0, sticky='ew')
 
     def create_user_window(self):
         db = db_management()
@@ -126,6 +127,41 @@ class BusinessGUI:
 
         tk.Button(win, text="Delete Selected User", command=confirm_deletion).pack(pady=10)
         load_users()
+
+    def change_pwsd_window(self):
+        win = tk.Toplevel(self.root)
+        win.title("Change password")
+        tk.Label(win, text= f"Change password for {self.user['username']}").grid(row=0, columnspan=2, pady=5)
+        tk.Label(win, text= "New password:").grid(row=1, column=0, pady=5)
+        tk.Label(win, text= "Verify password:").grid(row=2, column=0, pady=5)
+        password1 = tk.StringVar()
+        password2 = tk.StringVar()
+        tk.Entry(win, textvariable=password1, show="*").grid(row=1, column=1, pady=5)
+        tk.Entry(win, textvariable=password2, show="*").grid(row=2, column=1, pady=5)
+
+        def change_pwsd():
+            db = db_management()
+            pwsd1 = password1.get().strip()
+            pwsd2 = password2.get().strip()
+            if pwsd1==pwsd2:
+
+                if pwsd1 == '':
+                    messagebox.showerror("Error", f"Passwords must NOT be empty")
+                else:
+                    try:
+                        db.change_password(self.user["id"], self.user["username"], pwsd1 )
+                        messagebox.showinfo("Info", f"Password changed successfully.")
+                        win.destroy()
+
+                    except sqlite3.IntegrityError as e:
+                        messagebox.showerror("Database Error", f"Integrity error: {e}")
+
+                    except Exception as e:
+                        messagebox.showerror("Error", f"An unexpected error occurred: {e}")
+            else:
+                messagebox.showerror("Error", f"Both passwords must be the same")
+
+        tk.Button(win, text='Submit', command=change_pwsd).grid(row=3, columnspan=2, pady=5)
 
     def add_product_window(self):
         db = db_management()
@@ -402,8 +438,3 @@ class BusinessGUI:
         log_win = tk.Toplevel(self.root)
         log_win.geometry("1200x500")
         ActivityLogViewer(log_win)
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = BusinessGUI(root)
-    root.mainloop()
