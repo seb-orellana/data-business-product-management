@@ -52,8 +52,8 @@ class db_management:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
 
-            cursor.execute("UPDATE users SET hashed_password = ? WHERE id = ?",
-                            (hashed, user_id))
+            cursor.execute("UPDATE users SET hashed_password = ? WHERE username= ?",
+                            (hashed, username))
 
             msg = f"Password changed for {username}."
             cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",

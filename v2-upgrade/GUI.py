@@ -5,14 +5,10 @@ import sqlite3
 from db_utils import db_management
 from activityGUI import ActivityLogViewer
 
-CURRENT_USER = {
-    "id": 1,
-    "username": "admin",
-    "role": "admin"  #admin or manager or employee
-}
+class BusinessGUI:
+    def __init__(self, root, id, username, role):
+        self.user = {"id": id, "username": username, "role": role}
 
-class StoreGUI:
-    def __init__(self, root):
         self.root = root
         self.root.geometry("300x400")
         self.root.title("Business Management")
@@ -23,15 +19,15 @@ class StoreGUI:
         self.build_interface()
 
     def build_interface(self):
-        tk.Label(self.main_frame, text=f"Logged in as: {CURRENT_USER['username']} ({CURRENT_USER['role']})").grid(row=0, column=0, columnspan=2)
+        tk.Label(self.main_frame, text=f"Logged in as: {self.user['username']} ({self.user['role']})").grid(row=0, column=0, columnspan=2)
 
         # Admin-only features
-        if CURRENT_USER['role'] == 'admin':
+        if self.user['role'] == 'admin':
             tk.Button(self.main_frame, text="Create User", command=self.create_user_window).grid(row=1, column=0, sticky='ew')
             tk.Button(self.main_frame, text="Delete User", command=self.delete_user_window).grid(row=2, column=0, sticky='ew')
             tk.Button(self.main_frame, text="Activity Log", command=self.open_activity_log_viewer).grid(row=3, column=0, sticky='ew')
 
-        if CURRENT_USER['role'] == 'admin' or CURRENT_USER['role'] == 'manager':
+        if self.user['role'] == 'admin' or self.user['role'] == 'manager':
             tk.Button(self.main_frame, text="Add Product", command=self.add_product_window).grid(row=4, column=0, sticky='ew')
             tk.Button(self.main_frame, text="Remove Product", command=self.remove_product_window).grid(row=5, column=0, sticky='ew')
             tk.Button(self.main_frame, text="Update Stock", command=self.update_stock_window).grid(row=6, column=0, sticky='ew')
@@ -69,7 +65,7 @@ class StoreGUI:
             data = {field: entries[field].get() for field in fields}
 
             try:
-                db.create_users(CURRENT_USER["id"], data["Username"], data["Password"], role.get())
+                db.create_users(self.user["id"], data["Username"], data["Password"], role.get())
                 messagebox.showinfo("Info", f"User {data['Username']} created")
                 win.destroy()
 
@@ -122,7 +118,7 @@ class StoreGUI:
                 return
 
             try:
-                db.delete_user(CURRENT_USER["id"], user_id)
+                db.delete_user(self.user["id"], user_id)
                 messagebox.showinfo("Deleted", f"User {username} deleted successfully.")
                 load_users()  # refresh listbox in-place
             except Exception as e:
@@ -156,7 +152,7 @@ class StoreGUI:
                 except ValueError:
                     messagebox.showerror("Input Error", "Price must be a positive number and Stock must be a non-negative integer.")
                     return
-                db.add_product(CURRENT_USER["id"], data["Name"], price, stock)
+                db.add_product(self.user["id"], data["Name"], price, stock)
                 messagebox.showinfo("Info", f"Product '{data['Name']}' added successfully.")
                 win.destroy()
 
@@ -206,7 +202,7 @@ class StoreGUI:
                 return
 
             try:
-                db.remove_product(CURRENT_USER["id"], product_id)
+                db.remove_product(self.user["id"], product_id)
                 messagebox.showinfo("Removed", f"Product {name} removed successfully.")
                 load_products()  # refresh listbox in-place
             except Exception as e:
@@ -253,7 +249,7 @@ class StoreGUI:
                     messagebox.showerror("Input Error", "Stock must be a non-negative integer.")
                     return
 
-                db.update_stock(CURRENT_USER["id"], product_id, new_stock)
+                db.update_stock(self.user["id"], product_id, new_stock)
                 messagebox.showinfo("Updated", f"Product {name} updated successfully.")
                 win.destroy()
                 load_products()  # refresh listbox in-place
@@ -324,7 +320,7 @@ class StoreGUI:
 
             try:
                 db = db_management()
-                db.adjust_stock(CURRENT_USER["id"], product_id, delta)
+                db.adjust_stock(self.user["id"], product_id, delta)
                 load_products()  # Refresh list
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred: {e}")
@@ -372,7 +368,7 @@ class StoreGUI:
                     messagebox.showerror("Input Error", "Price must be a positive number.")
                     return
 
-                db.update_price(CURRENT_USER["id"], product_id, new_price)
+                db.update_price(self.user["id"], product_id, new_price)
                 messagebox.showinfo("Updated", f"Product {name} updated successfully.")
                 win.destroy()
                 load_products()  # refresh listbox in-place
@@ -409,5 +405,5 @@ class StoreGUI:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = StoreGUI(root)
+    app = BusinessGUI(root)
     root.mainloop()

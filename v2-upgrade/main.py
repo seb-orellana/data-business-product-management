@@ -1,4 +1,9 @@
 from db_utils import db_management
+from GUI import BusinessGUI
+from loginGUI import LoginFrame
+import tkinter as tk
+
+from config import DB_PATH, admin_user, admin_pass
 
 def main():
     db = db_management()
@@ -25,5 +30,13 @@ def main():
     db.remove_product(1,2)
     db.change_password(1, "userTest", "hello123")
 
+def start_gui(id, username, role):
+    BusinessGUI(root, id, username, role)
+
 if __name__ == '__main__':
-    main()
+    #main()
+    db = db_management()
+    root = tk.Tk()
+    root.title("Login")
+    LoginFrame(root, start_gui)
+    root.mainloop()

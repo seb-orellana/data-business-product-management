@@ -81,9 +81,8 @@ def init_admin_user():
 
     if count == 0:
         username = admin_user
-        password = admin_pass 
         role = "admin"
-        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        hashed = bcrypt.hashpw(admin_pass.encode('utf-8'), bcrypt.gensalt())
 
         cursor.execute("INSERT INTO users (username, hashed_password, role) VALUES (?, ?, ?)",
                        (username, hashed, role))
@@ -96,3 +95,4 @@ def init_admin_user():
 
 if __name__ == "__main__":
     initialize_db()
+    
