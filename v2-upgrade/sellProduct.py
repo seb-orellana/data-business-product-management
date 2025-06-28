@@ -1,8 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import sqlite3
-from config import DB_PATH
+from config import DB_PATH, RECEIPT_PATH
 from db_utils import db_management
+from datetime import datetime
+from pathlib import Path
 
 class SellProductsWindow:
     def __init__(self, root, user):
@@ -117,6 +119,30 @@ class SellProductsWindow:
             items = [{"product_id": pid, "quantity": qty} for pid, (_, qty, _) in self.selected_products.items()]
             db.sell_products(self.user["id"], items)
             messagebox.showinfo("Success", "Sale completed successfully.")
+
+            # === Generate Receipt ===
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            receipt_name = f"receipt_{timestamp}.txt"
+            path = str(RECEIPT_PATH / receipt_name)
+
+            total = 0
+            with open(path, "w") as f:
+                f.write(f"Receipt ID: {timestamp}\n")
+                f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"Sold by: {self.user['username']} (ID: {self.user['id']})\n")
+                f.write("="*40 + "\n")
+                for pid, (name, qty, price) in self.selected_products.items():
+                    subtotal = qty * price
+                    total += subtotal
+                    f.write(f"{name} x{qty} @ ${price:.2f} = ${subtotal:.2f}\n")
+                f.write("="*40 + "\n")
+                f.write(f"TOTAL: ${total:.2f}\n")
+
+            messagebox.showinfo("Success", f"Sale completed. Receipt saved to:\n{path}")
+
             self.win.destroy()
         except Exception as e:
             messagebox.showerror("Error", f"Sale failed: {e}")
+
+    def create_receipt(self):
+        pass
