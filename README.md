@@ -29,6 +29,7 @@ An upgrade from the original code built from scratch.
 - For users, passwords pass through bcrypt. Given the nature of the project, the use of argon2id or scrypt isnt deemed necessary.
 - A GUI is implemented, it changes according to the role of the user who logged in.
 - Selling products generates a receipt in .txt.
+- A graph of revenue per day is shown in statistics.
 
 ---
 
