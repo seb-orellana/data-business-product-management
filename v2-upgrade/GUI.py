@@ -4,6 +4,7 @@ from config import DB_PATH
 import sqlite3
 from db_utils import db_management
 from activityGUI import ActivityLogViewer
+from sellProduct import SellProductsWindow
 
 class BusinessGUI:
     def __init__(self, root, id, username, role):
@@ -248,7 +249,7 @@ class BusinessGUI:
         load_products()
 
     def sell_products_window(self):
-        pass
+        SellProductsWindow(self.root, self.user)
 
     def update_stock_window(self):
         win = tk.Toplevel(self.root)
@@ -291,7 +292,6 @@ class BusinessGUI:
                 load_products()  # refresh listbox in-place
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred: {e}")
-
 
         def initiate_update():
             selection = listbox.curselection()
