@@ -29,7 +29,7 @@ class ActivityLogViewer:
         self.action_type_combo = ttk.Combobox(
             filter_frame,
             textvariable=self.action_type_var,
-            values=["All", "create_users", "delete_user", "change_password", "add_product", "remove_product",
+            values=["All", "create_users", "delete_user", "change_password", "log_in", "add_product", "remove_product",
                     "sell_products", "update_stock", "adjust_stock", "update_price"],
             state="readonly",
             width=18
