@@ -63,6 +63,34 @@ class db_management:
         
             print("Password changed")
 
+    def log_in(self, username, password):
+        action_type = "log_in"
+
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+        
+            cursor.execute("SELECT hashed_password, id FROM users WHERE username = ?", (username,))
+            result = cursor.fetchone()
+            user_id = result[1]
+
+            if bcrypt.checkpw(password.encode('utf-8'), result[0]):
+
+                msg = f"{username} has logged in."
+                cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
+                        (user_id, action_type, msg))
+
+                conn.commit()
+                print("Logged in")
+                return True
+            else:
+                msg = f"Attempted log in for {username}."
+                cursor.execute("INSERT INTO activity_log (user_id, action_type, action) VALUES (?, ?, ?)",
+                        (user_id, action_type, msg))
+
+                conn.commit()
+                print("Failed log in")
+                return False
+
     def add_product(self, user_id, name, price, stock):      
         action_type = "add_product" 
         with sqlite3.connect(self.db_path) as conn:

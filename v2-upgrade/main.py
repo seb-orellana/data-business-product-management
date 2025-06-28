@@ -5,6 +5,8 @@ def main():
 
     db.create_users(1, "userTest", "pwsdTest", "manager")
     db.create_users(2, "userTest2", "Testpwsd", "employee")
+    db.log_in("userTest", "adwds")
+    db.log_in("userTest", "pwsdTest")
     db.add_product(1, "productTest", 1000, 10)
     db.add_product(1, "productTest2", 3000, 50)
     db.add_product(1, "productTest3", 5000, 32)
