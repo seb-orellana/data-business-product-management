@@ -5,6 +5,10 @@ import sqlite3
 from db_utils import db_management
 from activityGUI import ActivityLogViewer
 from sellProduct import SellProductsWindow
+import matplotlib.pyplot as plt
+from collections import defaultdict
+import re
+from datetime import datetime
 
 class BusinessGUI:
     def __init__(self, root, id, username, role):
@@ -436,8 +440,38 @@ class BusinessGUI:
         tk.Button(win, text="Update Selected Product", command=initiate_update).pack(pady=10)
         load_products()
 
-    def stadistics_window():
-        pass
+    def stadistics_window(self):
+        revenue_by_day = defaultdict(float)
+
+        with sqlite3.connect(DB_PATH) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT total_price, timestamp FROM sales")
+            records = cursor.fetchall()
+
+        for total_price, timestamp in records:            
+            amount = float(total_price)
+            date = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").date()
+            revenue_by_day[date] += amount
+
+        if not revenue_by_day:
+            print("No revenue data to plot.")
+            return
+
+        # Sort by date
+        sorted_dates = sorted(revenue_by_day.keys())
+        revenues = [revenue_by_day[date] for date in sorted_dates]
+
+        # Plot
+        plt.figure(figsize=(10, 5))
+        plt.plot(sorted_dates, revenues, marker='o', linestyle='-')
+        plt.title("Daily Revenue Over Time")
+        plt.xlabel("Date")
+        plt.ylabel("Revenue ($)")
+        plt.grid(True)
+        plt.tight_layout()
+        plt.xticks(rotation=45)
+        plt.show()
+
     def view_products_window(self):
         win = tk.Toplevel(self.root)
         win.title("View products")
