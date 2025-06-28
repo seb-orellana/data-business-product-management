@@ -33,11 +33,13 @@ class BusinessGUI:
             tk.Button(self.main_frame, text="Remove Product", command=self.remove_product_window).grid(row=5, column=0, sticky='ew')
             tk.Button(self.main_frame, text="Update Stock", command=self.update_stock_window).grid(row=6, column=0, sticky='ew')
             tk.Button(self.main_frame, text="Update Price", command=self.update_price_window).grid(row=7, column=0, sticky='ew')
+            tk.Button(self.main_frame, text="View Stadistics", command=self.stadistics_window).grid(row=7, column=0, sticky='ew')
 
         # Common features
         tk.Button(self.main_frame, text="Sell Products", command=self.sell_products_window).grid(row=8, column=0, sticky='ew')
         tk.Button(self.main_frame, text="Adjust Stock", command=self.adjust_stock_window).grid(row=9, column=0, sticky='ew')
-        tk.Button(self.main_frame, text="Change Password", command=self.change_pwsd_window).grid(row=10, column=0, sticky='ew')
+        tk.Button(self.main_frame, text="View Products", command=self.view_products_window).grid(row=10, column=0, sticky='ew')
+        tk.Button(self.main_frame, text="Change Password", command=self.change_pwsd_window).grid(row=12, column=0, sticky='ew')
 
     def create_user_window(self):
         db = db_management()
@@ -433,6 +435,42 @@ class BusinessGUI:
 
         tk.Button(win, text="Update Selected Product", command=initiate_update).pack(pady=10)
         load_products()
+
+    def stadistics_window():
+        pass
+    def view_products_window(self):
+        win = tk.Toplevel(self.root)
+        win.title("View products")
+
+        columns = ("id", "name", "stock", "price")
+        tree = ttk.Treeview(win, columns=columns, show="headings")
+        for col in columns:
+            tree.heading(col, text=col.title())
+            tree.column(col, anchor=tk.CENTER, stretch=True)
+        tree.pack(fill=tk.BOTH, expand=True)
+
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(win, orient="vertical", command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+
+        def load_data():
+            # Query data
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, name, stock, price FROM products WHERE is_removed=0")
+            records = cursor.fetchall()
+            conn.close()
+
+            # Clear table
+            for row in tree.get_children():
+                tree.delete(row)
+
+            # Apply filters (search, user_id, action_type)
+            for row in records:
+                tree.insert("", tk.END, values=row)
+        
+        load_data()
 
     def open_activity_log_viewer(self):
         log_win = tk.Toplevel(self.root)
